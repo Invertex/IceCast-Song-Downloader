@@ -1,4 +1,4 @@
-﻿namespace TestConsoleApp
+﻿namespace Invertex
 {
     partial class IceStreamForm
     {
@@ -45,6 +45,7 @@
             this.saveLocationInput = new System.Windows.Forms.TextBox();
             this.reconnectAttempts = new System.Windows.Forms.NumericUpDown();
             this.reconnectLabel = new System.Windows.Forms.Label();
+            this.saveCurrentlyPlayingBtn = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.reconnectAttempts)).BeginInit();
             this.SuspendLayout();
@@ -220,11 +221,22 @@
             this.reconnectLabel.Text = "Reconnect attempts:";
             this.reconnectLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // saveCurrentlyPlayingBtn
+            // 
+            this.saveCurrentlyPlayingBtn.Location = new System.Drawing.Point(495, 107);
+            this.saveCurrentlyPlayingBtn.Name = "saveCurrentlyPlayingBtn";
+            this.saveCurrentlyPlayingBtn.Size = new System.Drawing.Size(295, 42);
+            this.saveCurrentlyPlayingBtn.TabIndex = 19;
+            this.saveCurrentlyPlayingBtn.Text = "Save Currently Playing Song";
+            this.saveCurrentlyPlayingBtn.UseVisualStyleBackColor = true;
+            this.saveCurrentlyPlayingBtn.Click += new System.EventHandler(this.SaveCurrentlyPlaying_Clicked);
+            // 
             // IceStreamForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(806, 466);
+            this.Controls.Add(this.saveCurrentlyPlayingBtn);
             this.Controls.Add(this.reconnectLabel);
             this.Controls.Add(this.reconnectAttempts);
             this.Controls.Add(this.saveLocationInput);
@@ -272,5 +284,6 @@
         private System.Windows.Forms.ToolStripStatusLabel statusLabel;
         private System.Windows.Forms.NumericUpDown reconnectAttempts;
         private System.Windows.Forms.Label reconnectLabel;
+        private System.Windows.Forms.Button saveCurrentlyPlayingBtn;
     }
 }

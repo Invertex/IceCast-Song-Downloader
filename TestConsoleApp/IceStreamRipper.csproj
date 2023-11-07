@@ -4,7 +4,7 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net5.0-windows</TargetFramework>
         <UseWindowsForms>True</UseWindowsForms>
-        <StartupObject>TestConsoleApp.Program</StartupObject>
+        <StartupObject>Invertex.Program</StartupObject>
         <ApplicationIcon>ice_icon.ico</ApplicationIcon>
         <RootNamespace>Invertex</RootNamespace>
         <Authors>Invertex</Authors>

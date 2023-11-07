@@ -9,26 +9,64 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using StreamRipper.Models.Song;
 using System.Text.RegularExpressions;
-
 using Invertex.Properties;
 
-namespace TestConsoleApp
+namespace Invertex
 {
     public partial class IceStreamForm : Form
     {
-        List<string> filters = new List<string>(128);
+        private IStreamRipper stream;
+
+        private List<string> filters = new List<string>(128);
         private string regSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-        Regex rg;
+        private Regex rg;
 
         private int reconnectCount = 0;
         private bool successfullyConnected = false;
         private bool connected = false;
 
+        private bool saveCurrentlyPlaying = false;
+        private bool SaveCurrentlyPlaying
+        {
+            get => saveCurrentlyPlaying;
+            set {
+                saveCurrentlyPlaying = value;
+                SetSaveSongButtonState(value);
+            }
+            
+        }
+
+        private bool HasFilters { get => (filters != null && filters.Count > 0); }
+
+        private void SetSaveSongButtonState(bool saveCurrent)
+        {
+            if (saveCurrentlyPlayingBtn.InvokeRequired)
+            {
+                Action safeWrite = delegate { SetSaveSongButtonState(saveCurrent); };
+                saveCurrentlyPlayingBtn.Invoke(safeWrite);
+            }
+            else
+            {
+                if (saveCurrent)
+                {
+                    saveCurrentlyPlayingBtn.Enabled = false;
+                    saveCurrentlyPlayingBtn.Text = "Saving Currently Playing Song";
+                }
+                else
+                {
+                    saveCurrentlyPlayingBtn.Enabled = true;
+                    saveCurrentlyPlayingBtn.Text = "Save Currently Playing Song?";
+                }
+            }
+        }
+
+        
         public IceStreamForm()
         {
             rg = new Regex(string.Format("[{0}]", Regex.Escape(regSearch)));
             InitializeComponent();
             LoadSettings();
+            if(!HasFilters) { SetSaveSongButtonState(true); }
             UpdateStatus("Waiting for start...");
         }
 
@@ -43,24 +81,26 @@ namespace TestConsoleApp
         private void FilterText_Changed(object sender, EventArgs e)
         {
             filters = new List<string>(filterWordsInput.Text.Split(Environment.NewLine));
-            if(filters.Count == 0) {
-                filterWordsInput.Text = "";
-                return; }
-            for(int i = filters.Count - 1; i >= 0; i--)
+            if (filters.Count != 0)
             {
-                if(String.IsNullOrWhiteSpace(filters[i]))
+                for (int i = filters.Count - 1; i >= 0; i--)
                 {
-                    filters.RemoveAt(i);
+                    if (String.IsNullOrWhiteSpace(filters[i]))
+                    {
+                        filters.RemoveAt(i);
+                    }
                 }
             }
             if (filters.Count == 0)
             {
                 filterWordsInput.Text = "";
-                return;
+                SetSaveSongButtonState(true);
+            }
+            else if(!saveCurrentlyPlaying)
+            {
+                SetSaveSongButtonState(false);
             }
         }
-
-        IStreamRipper stream;
 
         private void Stop()
         {
@@ -143,6 +183,11 @@ namespace TestConsoleApp
             Start();
         }
 
+        private void SaveCurrentlyPlaying_Clicked(object sender, EventArgs e)
+        {
+            SaveCurrentlyPlaying = true;
+        }
+
         private bool SavePathValid()
         {
             bool pathValid = Directory.Exists(saveLocationInput.Text);
@@ -171,7 +216,8 @@ namespace TestConsoleApp
 
         private void MetadataChanged(object sender, StreamRipper.Models.Events.MetadataChangedEventArg arg)
         {
-            if(!connected)
+            if (!HasFilters) { SetSaveSongButtonState(true); }
+            if (!connected)
             {
                 connected = true;
                 UpdateLog("Connected!");
@@ -181,32 +227,35 @@ namespace TestConsoleApp
             {
                 successfullyConnected = true;
                 reconnectCount = 0;
+
                 if (SongMatchesFilter(arg.SongMetadata))
                 {
+                    SaveCurrentlyPlaying = true;
                     FlashWindow.Flash(this);
                     UpdateLog("");
                     UpdateLog("Found a matching song! Will save when completed playing: " + arg.SongMetadata.ToString());
-                }
+                } 
+                else if (HasFilters) { SaveCurrentlyPlaying = false; }
+
                 UpdateSongData(arg.SongMetadata);
             }
         }
 
         private void SongChanged(object sender, StreamRipper.Models.Events.SongChangedEventArg arg)
         {
-            if(arg == null || arg.SongInfo == null || arg.SongInfo.SongMetadata == null || String.IsNullOrWhiteSpace(arg.SongInfo.SongMetadata.Artist)) { return; }
+            if(arg == null || arg.SongInfo == null || arg.SongInfo.SongMetadata == null || String.IsNullOrWhiteSpace(arg.SongInfo.SongMetadata.Artist)) { SaveCurrentlyPlaying = false; return; }
             string songName = arg.SongInfo.SongMetadata.ToString();
 
-            if (filters != null && filters.Count > 0)
-            {
-                if(SongMatchesFilter(arg.SongInfo.SongMetadata))
-                {
-                    SaveSong(arg);
-                }
-            }
-            else
+            if(SaveCurrentlyPlaying || !HasFilters)
             {
                 SaveSong(arg);
             }
+            else if (SongMatchesFilter(arg.SongInfo.SongMetadata))
+            {
+                SaveSong(arg);
+            }
+
+            SaveCurrentlyPlaying = false;
         }
 
         private void SaveSong(StreamRipper.Models.Events.SongChangedEventArg songArg)
@@ -214,7 +263,7 @@ namespace TestConsoleApp
             string savePath = Path.Combine(saveLocationInput.Text, $"{songArg.SongInfo.SongMetadata}.mp3");
             if (SavePathValid())
             {
-                UpdateLog("SAVING SONG: " + songArg.SongInfo.ToString());
+                UpdateLog("SAVED SONG: " + songArg.SongInfo.ToString());
                 System.IO.File.WriteAllBytes(Path.Combine(saveLocationInput.Text, $"{rg.Replace(songArg.SongInfo.SongMetadata.ToString(), "_")}.mp3"), songArg.SongInfo.Stream.ToArray());
             }
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace TestConsoleApp
+namespace Invertex
 {
     class Program
     {
