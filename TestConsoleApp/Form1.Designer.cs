@@ -43,7 +43,10 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.saveLocationInput = new System.Windows.Forms.TextBox();
+            this.reconnectAttempts = new System.Windows.Forms.NumericUpDown();
+            this.reconnectLabel = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.reconnectAttempts)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -86,6 +89,7 @@
             this.streamUrlBox.PlaceholderText = "Enter Stream Url...";
             this.streamUrlBox.Size = new System.Drawing.Size(664, 27);
             this.streamUrlBox.TabIndex = 4;
+            this.streamUrlBox.Tag = "lastPathData";
             // 
             // streamUrlLabel
             // 
@@ -190,11 +194,39 @@
             this.saveLocationInput.TabIndex = 16;
             this.saveLocationInput.WordWrap = false;
             // 
+            // reconnectAttempts
+            // 
+            this.reconnectAttempts.Location = new System.Drawing.Point(613, 253);
+            this.reconnectAttempts.Name = "reconnectAttempts";
+            this.reconnectAttempts.Size = new System.Drawing.Size(61, 23);
+            this.reconnectAttempts.TabIndex = 17;
+            this.reconnectAttempts.Tag = "ReconnectMax";
+            this.reconnectAttempts.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
+            // reconnectLabel
+            // 
+            this.reconnectLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.reconnectLabel.AutoSize = true;
+            this.reconnectLabel.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
+            this.reconnectLabel.Location = new System.Drawing.Point(494, 256);
+            this.reconnectLabel.Name = "reconnectLabel";
+            this.reconnectLabel.Size = new System.Drawing.Size(113, 15);
+            this.reconnectLabel.TabIndex = 18;
+            this.reconnectLabel.Text = "Reconnect attempts:";
+            this.reconnectLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // IceStreamForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(806, 466);
+            this.Controls.Add(this.reconnectLabel);
+            this.Controls.Add(this.reconnectAttempts);
             this.Controls.Add(this.saveLocationInput);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.label3);
@@ -216,6 +248,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.onFormClosing);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.reconnectAttempts)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -237,5 +270,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox saveLocationInput;
         private System.Windows.Forms.ToolStripStatusLabel statusLabel;
+        private System.Windows.Forms.NumericUpDown reconnectAttempts;
+        private System.Windows.Forms.Label reconnectLabel;
     }
 }

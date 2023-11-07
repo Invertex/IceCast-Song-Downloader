@@ -8,17 +8,36 @@ using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using StreamRipper.Models.Song;
+using System.Text.RegularExpressions;
+
+using Invertex.Properties;
 
 namespace TestConsoleApp
 {
     public partial class IceStreamForm : Form
     {
         List<string> filters = new List<string>(128);
+        private string regSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+        Regex rg;
+
+        private int reconnectCount = 0;
+        private bool successfullyConnected = false;
+        private bool connected = false;
 
         public IceStreamForm()
         {
+            rg = new Regex(string.Format("[{0}]", Regex.Escape(regSearch)));
             InitializeComponent();
+            LoadSettings();
             UpdateStatus("Waiting for start...");
+        }
+
+        void LoadSettings()
+        {
+            reconnectAttempts.Value = Settings.Default.ReconnectMax;
+            filterWordsInput.Text = Settings.Default.LastFilters;
+            saveLocationInput.Text = Settings.Default.LastPath;
+            streamUrlBox.Text = Settings.Default.LastStream;
         }
 
         private void FilterText_Changed(object sender, EventArgs e)
@@ -45,9 +64,11 @@ namespace TestConsoleApp
 
         private void Stop()
         {
-            if (stream != null) { stream.Dispose(); }
-
-            startButton.Text = "START";
+            if (stream != null) { stream.Dispose(); stream = null; }
+            successfullyConnected = false;
+            connected = false;
+            reconnectCount = 0;
+            SetStartButtonLabel("START");
             UpdateLog("STREAM STOPPED");
             UpdateStatus("Waiting to start.");
         }
@@ -56,7 +77,8 @@ namespace TestConsoleApp
         {
             if (!SavePathValid()) { return; }
 
-            startButton.Text = "STOP";
+            SetStartButtonLabel("STOP");
+            if(stream != null) { stream?.Dispose(); stream = null; }
 
             var serviceProvider = new ServiceCollection()
                 .AddLogging(cfg => cfg.AddConsole())
@@ -71,7 +93,7 @@ namespace TestConsoleApp
                 stream = streamRipperFactory.New(new StreamRipperOptions
                 {
                     Url = new Uri(streamUrlBox.Text),
-                    MaxBufferSize = 10 * 2000000    // stop when buffer size passes 20 megabytes
+                    MaxBufferSize = 10 * 2000000   // stop when buffer size passes 20 megabytes
                 });
             }
             catch
@@ -80,13 +102,27 @@ namespace TestConsoleApp
                 Stop();
                 return;
             }
+           
             stream.StreamFailedHandlers += StreamFailed;
             stream.StreamStartedEventHandlers += StreamStart;
             stream.SongChangedEventHandlers += SongChanged;
             stream.MetadataChangedHandlers += MetadataChanged;
-
-            UpdateStatus("Starting Stream...");
+            
+            UpdateStatus("Starting...");
             stream.Start();
+        }
+
+        private void SetStartButtonLabel(string text)
+        {
+            if(startButton.InvokeRequired)
+            {
+                Action safeWrite = delegate { SetStartButtonLabel($"{text}"); };
+                startButton.Invoke(safeWrite);
+            }
+            else
+            {
+                startButton.Text = text;
+            }
         }
 
         private void Browse_Clicked(object sender, EventArgs e)
@@ -132,13 +168,23 @@ namespace TestConsoleApp
             }
             return false;
         }
+
         private void MetadataChanged(object sender, StreamRipper.Models.Events.MetadataChangedEventArg arg)
         {
+            if(!connected)
+            {
+                connected = true;
+                UpdateLog("Connected!");
+                UpdateLog("");
+            }
             if (arg != null && arg.SongMetadata != null)
             {
-                if(SongMatchesFilter(arg.SongMetadata))
+                successfullyConnected = true;
+                reconnectCount = 0;
+                if (SongMatchesFilter(arg.SongMetadata))
                 {
                     FlashWindow.Flash(this);
+                    UpdateLog("");
                     UpdateLog("Found a matching song! Will save when completed playing: " + arg.SongMetadata.ToString());
                 }
                 UpdateSongData(arg.SongMetadata);
@@ -147,12 +193,13 @@ namespace TestConsoleApp
 
         private void SongChanged(object sender, StreamRipper.Models.Events.SongChangedEventArg arg)
         {
+            if(arg == null || arg.SongInfo == null || arg.SongInfo.SongMetadata == null || String.IsNullOrWhiteSpace(arg.SongInfo.SongMetadata.Artist)) { return; }
             string songName = arg.SongInfo.SongMetadata.ToString();
 
             if (filters != null && filters.Count > 0)
             {
                 if(SongMatchesFilter(arg.SongInfo.SongMetadata))
-{
+                {
                     SaveSong(arg);
                 }
             }
@@ -164,26 +211,61 @@ namespace TestConsoleApp
 
         private void SaveSong(StreamRipper.Models.Events.SongChangedEventArg songArg)
         {
-            UpdateLog("SAVING SONG: " + songArg.SongInfo.ToString());
             string savePath = Path.Combine(saveLocationInput.Text, $"{songArg.SongInfo.SongMetadata}.mp3");
             if (SavePathValid())
             {
-                System.IO.File.WriteAllBytes(Path.Combine(saveLocationInput.Text, $"{songArg.SongInfo.SongMetadata}.mp3"), songArg.SongInfo.Stream.ToArray());
+                UpdateLog("SAVING SONG: " + songArg.SongInfo.ToString());
+                System.IO.File.WriteAllBytes(Path.Combine(saveLocationInput.Text, $"{rg.Replace(songArg.SongInfo.SongMetadata.ToString(), "_")}.mp3"), songArg.SongInfo.Stream.ToArray());
             }
         }
 
         private void StreamFailed(object sender, StreamRipper.Models.Events.StreamFailedEventArg arg)
         {
-            UpdateLog("Stream Failed to run. Ensure it's the correct type of url!", true);
-            Stop();
+            connected = false;
+
+            if (successfullyConnected)
+            {
+                if (reconnectCount > reconnectAttempts.Value)
+                {
+                    UpdateLog("Tried reconnecting max times. Stream may be down or URL is incorrect.");
+                    Action safeWrite = delegate {
+                        Stop();
+                    };
+                    reconnectAttempts.Invoke(safeWrite);
+                }
+                else
+                {
+                    Action safeWrite = delegate { 
+                        reconnectCount += 1;
+                        stream?.Start();
+                    };
+                    reconnectAttempts.Invoke(safeWrite);
+                }
+            }
+            else
+            {
+                UpdateLog("Stream Failed to run. Ensure it's the correct type of url!", true);
+                Stop();
+            }
         }
 
         private void StreamStart(object sender, StreamRipper.Models.Events.StreamStartedEventArg arg)
         {
-            UpdateLog("Stream Started!");
-            if(arg != null && arg.SongInfo != null && arg.SongInfo.SongMetadata != null)
+            if (reconnectCount > 0)
+            {
+                UpdateLog("Attempting to reconnect...");
+            }
+            else
+            {
+                UpdateLog("Attempting to connect...");
+            }
+            if (arg != null && arg.SongInfo != null && arg.SongInfo.SongMetadata != null)
+            {
+                UpdateLog("Connected!");
+                UpdateLog(" ");
                 UpdateSongData(arg.SongInfo.SongMetadata);
-}
+            }
+        }
 
         private void UpdateStatus(string text)
         {
@@ -226,7 +308,17 @@ namespace TestConsoleApp
 
         private void onFormClosing(object sender, FormClosingEventArgs e)
         {
-            if(stream!= null) { stream?.Dispose(); }
+            SaveSettings();
+            if (stream!= null) { stream?.Dispose(); }
+        }
+
+        private void SaveSettings()
+        {
+            Settings.Default.ReconnectMax = (uint)reconnectAttempts.Value;
+            Settings.Default.LastFilters = filterWordsInput.Text;
+            Settings.Default.LastPath = saveLocationInput.Text;
+            Settings.Default.LastStream = streamUrlBox.Text;
+            Settings.Default.Save();
         }
     }
 }
