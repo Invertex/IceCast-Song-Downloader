@@ -26,7 +26,7 @@ namespace StreamRipper.Models.Song
 
         public override string ToString()
         {
-            return $"{Artist}-{Title}";
+            return $"{Artist} - {Title}";
         }
     }
 }
