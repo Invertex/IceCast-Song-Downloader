@@ -63,8 +63,8 @@
             // statusLabel
             // 
             this.statusLabel.Name = "statusLabel";
-            this.statusLabel.Size = new System.Drawing.Size(118, 17);
-            this.statusLabel.Text = "toolStripStatusLabel1";
+            this.statusLabel.Size = new System.Drawing.Size(92, 17);
+            this.statusLabel.Text = "Waiting to Start.";
             // 
             // logBox
             // 
