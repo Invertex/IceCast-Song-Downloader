@@ -164,9 +164,9 @@
             this.label3.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label3.Location = new System.Drawing.Point(18, 83);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(307, 21);
+            this.label3.Size = new System.Drawing.Size(363, 21);
             this.label3.TabIndex = 13;
-            this.label3.Text = "Only Save Songs With These Keywords:";
+            this.label3.Text = "Only Save Songs With Any Of These Keywords:";
             // 
             // label1
             // 
@@ -174,7 +174,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(331, 88);
+            this.label1.Location = new System.Drawing.Point(377, 88);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(87, 15);
             this.label1.TabIndex = 14;
@@ -257,7 +257,7 @@
             this.Name = "IceStreamForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "IceStream Ripper";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.onFormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.reconnectAttempts)).EndInit();
