@@ -38,29 +38,6 @@ namespace Invertex
 
         private bool HasFilters { get => (filters != null && filters.Count > 0); }
 
-        private void SetSaveSongButtonState(bool saveCurrent)
-        {
-            if (saveCurrentlyPlayingBtn.InvokeRequired)
-            {
-                Action safeWrite = delegate { SetSaveSongButtonState(saveCurrent); };
-                saveCurrentlyPlayingBtn.Invoke(safeWrite);
-            }
-            else
-            {
-                if (saveCurrent)
-                {
-                    saveCurrentlyPlayingBtn.Enabled = false;
-                    saveCurrentlyPlayingBtn.Text = "Saving Currently Playing Song";
-                }
-                else
-                {
-                    saveCurrentlyPlayingBtn.Enabled = true;
-                    saveCurrentlyPlayingBtn.Text = "Save Currently Playing Song?";
-                }
-            }
-        }
-
-        
         public IceStreamForm()
         {
             rg = new Regex(string.Format("[{0}]", Regex.Escape(regSearch)));
@@ -68,49 +45,6 @@ namespace Invertex
             LoadSettings();
             if(!HasFilters) { SetSaveSongButtonState(true); }
             UpdateStatus("Waiting for start...");
-        }
-
-        void LoadSettings()
-        {
-            reconnectAttempts.Value = Settings.Default.ReconnectMax;
-            filterWordsInput.Text = Settings.Default.LastFilters;
-            saveLocationInput.Text = Settings.Default.LastPath;
-            streamUrlBox.Text = Settings.Default.LastStream;
-        }
-
-        private void FilterText_Changed(object sender, EventArgs e)
-        {
-            filters = new List<string>(filterWordsInput.Text.Split(Environment.NewLine));
-            if (filters.Count != 0)
-            {
-                for (int i = filters.Count - 1; i >= 0; i--)
-                {
-                    if (String.IsNullOrWhiteSpace(filters[i]))
-                    {
-                        filters.RemoveAt(i);
-                    }
-                }
-            }
-            if (filters.Count == 0)
-            {
-                filterWordsInput.Text = "";
-                SetSaveSongButtonState(true);
-            }
-            else if(!saveCurrentlyPlaying)
-            {
-                SetSaveSongButtonState(false);
-            }
-        }
-
-        private void Stop()
-        {
-            if (stream != null) { stream.Dispose(); stream = null; }
-            successfullyConnected = false;
-            connected = false;
-            reconnectCount = 0;
-            SetStartButtonLabel("START");
-            UpdateLog("STREAM STOPPED");
-            UpdateStatus("Waiting to start.");
         }
 
         private void Start()
@@ -151,18 +85,26 @@ namespace Invertex
             UpdateStatus("Starting...");
             stream.Start();
         }
-
-        private void SetStartButtonLabel(string text)
+        private void Stop()
         {
-            if(startButton.InvokeRequired)
+            if (stream != null) { stream.Dispose(); stream = null; }
+            successfullyConnected = false;
+            connected = false;
+            reconnectCount = 0;
+            SetStartButtonLabel("START");
+            UpdateLog("STREAM STOPPED");
+            UpdateStatus("Waiting to start.");
+        }
+
+#region FORM EVENTS
+        private void Start_Clicked(object sender, EventArgs e)
+        {
+            if (startButton.Text == "STOP")
             {
-                Action safeWrite = delegate { SetStartButtonLabel($"{text}"); };
-                startButton.Invoke(safeWrite);
+                Stop();
+                return;
             }
-            else
-            {
-                startButton.Text = text;
-            }
+            Start();
         }
 
         private void Browse_Clicked(object sender, EventArgs e)
@@ -173,14 +115,28 @@ namespace Invertex
             }
         }
 
-        private void Start_Clicked(object sender, EventArgs e)
+        private void FilterText_Changed(object sender, EventArgs e)
         {
-            if(startButton.Text == "STOP")
+            filters = new List<string>(filterWordsInput.Text.Split(Environment.NewLine));
+            if (filters.Count != 0)
             {
-                Stop();
-                return;
+                for (int i = filters.Count - 1; i >= 0; i--)
+                {
+                    if (String.IsNullOrWhiteSpace(filters[i]))
+                    {
+                        filters.RemoveAt(i);
+                    }
+                }
             }
-            Start();
+            if (filters.Count == 0)
+            {
+                filterWordsInput.Text = "";
+                SetSaveSongButtonState(true);
+            }
+            else if (!saveCurrentlyPlaying)
+            {
+                SetSaveSongButtonState(false);
+            }
         }
 
         private void SaveCurrentlyPlaying_Clicked(object sender, EventArgs e)
@@ -188,31 +144,15 @@ namespace Invertex
             SaveCurrentlyPlaying = true;
         }
 
-        private bool SavePathValid()
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
-            bool pathValid = Directory.Exists(saveLocationInput.Text);
-            if (!pathValid)
-            {
-                UpdateLog("Save Path Invalid! Can't start.");
-            }
-
-            return pathValid;
+            SaveSettings();
+            if (stream != null) { stream?.Dispose(); }
         }
 
-        private bool SongMatchesFilter(SongMetadata metadata)
-        {
-            if (filters != null && filters.Count > 0)
-            {
-                foreach (var filter in filters)
-{
-                    if (metadata.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
+#endregion
+
+#region StreamingEvents
 
         private void MetadataChanged(object sender, StreamRipper.Models.Events.MetadataChangedEventArg arg)
         {
@@ -244,7 +184,6 @@ namespace Invertex
         private void SongChanged(object sender, StreamRipper.Models.Events.SongChangedEventArg arg)
         {
             if(arg == null || arg.SongInfo == null || arg.SongInfo.SongMetadata == null || String.IsNullOrWhiteSpace(arg.SongInfo.SongMetadata.Artist)) { SaveCurrentlyPlaying = false; return; }
-            string songName = arg.SongInfo.SongMetadata.ToString();
 
             if(SaveCurrentlyPlaying || !HasFilters)
             {
@@ -258,15 +197,6 @@ namespace Invertex
             SaveCurrentlyPlaying = false;
         }
 
-        private void SaveSong(StreamRipper.Models.Events.SongChangedEventArg songArg)
-        {
-            string savePath = Path.Combine(saveLocationInput.Text, $"{songArg.SongInfo.SongMetadata}.mp3");
-            if (SavePathValid())
-            {
-                UpdateLog("SAVED SONG: " + songArg.SongInfo.ToString());
-                System.IO.File.WriteAllBytes(Path.Combine(saveLocationInput.Text, $"{rg.Replace(songArg.SongInfo.SongMetadata.ToString(), "_")}.mp3"), songArg.SongInfo.Stream.ToArray());
-            }
-        }
 
         private void StreamFailed(object sender, StreamRipper.Models.Events.StreamFailedEventArg arg)
         {
@@ -315,7 +245,95 @@ namespace Invertex
                 UpdateSongData(arg.SongInfo.SongMetadata);
             }
         }
+        #endregion
 
+        #region UTILITY FUNCTIONS
+        private bool SavePathValid()
+        {
+            bool pathValid = Directory.Exists(saveLocationInput.Text);
+            if (!pathValid)
+            {
+                UpdateLog("Save Path Invalid! Can't start.");
+            }
+
+            return pathValid;
+        }
+
+        private bool SongMatchesFilter(SongMetadata metadata)
+        {
+            if (filters != null && filters.Count > 0)
+            {
+                foreach (var filter in filters)
+                {
+                    if (metadata.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void SaveSong(StreamRipper.Models.Events.SongChangedEventArg songArg)
+        {
+            if (SavePathValid())
+            {
+                UpdateLog("SAVED SONG: " + songArg.SongInfo.ToString());
+                System.IO.File.WriteAllBytes(Path.Combine(saveLocationInput.Text, $"{rg.Replace(songArg.SongInfo.SongMetadata.ToString(), "_")}.mp3"), songArg.SongInfo.Stream.ToArray());
+            }
+        }
+        void LoadSettings()
+        {
+            reconnectAttempts.Value = Settings.Default.ReconnectMax;
+            filterWordsInput.Text = Settings.Default.LastFilters;
+            saveLocationInput.Text = Settings.Default.LastPath;
+            streamUrlBox.Text = Settings.Default.LastStream;
+        }
+
+        private void SaveSettings()
+        {
+            Settings.Default.ReconnectMax = (uint)reconnectAttempts.Value;
+            Settings.Default.LastFilters = filterWordsInput.Text;
+            Settings.Default.LastPath = saveLocationInput.Text;
+            Settings.Default.LastStream = streamUrlBox.Text;
+            Settings.Default.Save();
+        }
+        #endregion
+
+        #region UI
+        private void SetSaveSongButtonState(bool saveCurrent)
+        {
+            if (saveCurrentlyPlayingBtn.InvokeRequired)
+            {
+                Action safeWrite = delegate { SetSaveSongButtonState(saveCurrent); };
+                saveCurrentlyPlayingBtn.Invoke(safeWrite);
+            }
+            else
+            {
+                if (saveCurrent)
+                {
+                    saveCurrentlyPlayingBtn.Enabled = false;
+                    saveCurrentlyPlayingBtn.Text = "Saving Currently Playing Song";
+                }
+                else
+                {
+                    saveCurrentlyPlayingBtn.Enabled = true;
+                    saveCurrentlyPlayingBtn.Text = "Save Currently Playing Song?";
+                }
+            }
+        }
+        private void SetStartButtonLabel(string text)
+        {
+            if (startButton.InvokeRequired)
+            {
+                Action safeWrite = delegate { SetStartButtonLabel($"{text}"); };
+                startButton.Invoke(safeWrite);
+            }
+            else
+            {
+                startButton.Text = text;
+            }
+        }
         private void UpdateStatus(string text)
         {
             //Take care of off-thread writing
@@ -332,7 +350,7 @@ namespace Invertex
 
         private void UpdateLog(string text, bool setLabel = false)
         {
-            if(logBox.InvokeRequired)
+            if (logBox.InvokeRequired)
             {
                 Action safeWrite = delegate { UpdateLog($"{text}"); };
                 logBox.Invoke(safeWrite);
@@ -341,7 +359,7 @@ namespace Invertex
             {
                 logBox.AppendText(Environment.NewLine + text);
             }
-            if(setLabel)
+            if (setLabel)
             {
                 UpdateStatus(text);
             }
@@ -354,20 +372,6 @@ namespace Invertex
                 UpdateStatus("Now Playing: " + songData.ToString());
             }
         }
-
-        private void onFormClosing(object sender, FormClosingEventArgs e)
-        {
-            SaveSettings();
-            if (stream!= null) { stream?.Dispose(); }
-        }
-
-        private void SaveSettings()
-        {
-            Settings.Default.ReconnectMax = (uint)reconnectAttempts.Value;
-            Settings.Default.LastFilters = filterWordsInput.Text;
-            Settings.Default.LastPath = saveLocationInput.Text;
-            Settings.Default.LastStream = streamUrlBox.Text;
-            Settings.Default.Save();
-        }
+        #endregion
     }
 }
