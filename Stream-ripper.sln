@@ -5,7 +5,10 @@ VisualStudioVersion = 16.0.33801.447
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stream-ripper", "Stream-ripper\Stream-ripper.csproj", "{93568285-B67B-407B-9E50-9EE8C1B6C36D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IceStreamRipper", "TestConsoleApp\IceStreamRipper.csproj", "{9F455092-0B10-4513-BA2F-ACB535D6A0D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IceStreamRipper", "IceStreamRipper\IceStreamRipper.csproj", "{9F455092-0B10-4513-BA2F-ACB535D6A0D8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{93568285-B67B-407B-9E50-9EE8C1B6C36D} = {93568285-B67B-407B-9E50-9EE8C1B6C36D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

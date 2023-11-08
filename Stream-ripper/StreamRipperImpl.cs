@@ -160,32 +160,27 @@ namespace StreamRipper
                                         continue;
                                     }
                                 }
-
-                                // Get the metadata and reset the position
-                                while (bufferPosition < readBytes)
+                                if (bufferPosition < readBytes)
                                 {
-                                    metadataSb.Append(Convert.ToChar(buffer[bufferPosition++]));
-                                    metadataLength--;
+                                    Span<byte> slice = buffer.AsSpan<byte>(bufferPosition, metadataLength);
+                                    string metadata = Encoding.UTF8.GetString(slice);
+                                   
+                                    bufferPosition += metadataLength;
+                                    metadataLength = 0;
 
-                                    // ReSharper disable once InvertIf
-                                    if (metadataLength == 0)
+                                    streamPosition = Math.Min(readBytes - bufferPosition, metaInt);
+                                    ProcessStreamData(state, buffer, ref bufferPosition, streamPosition);
+
+                                    // Trigger song change event
+                                    state.EventHandlers.MetadataChangedHandlers.Invoke(state, new MetadataChangedEventArg
                                     {
-                                        var metadata = metadataSb.ToString();
-                                        streamPosition = Math.Min(readBytes - bufferPosition, metaInt);
-                                        ProcessStreamData(state, buffer, ref bufferPosition, streamPosition);
+                                        SongMetadata = MetadataUtility.ParseMetadata(metadata)
+                                    });
 
-                                        // Trigger song change event
-                                        state.EventHandlers.MetadataChangedHandlers.Invoke(state, new MetadataChangedEventArg
-                                        {
-                                            SongMetadata = MetadataUtility.ParseMetadata(metadata)
-                                        });
+                                    // Increment the count
+                                    state.Count++;
 
-                                        // Increment the count
-                                        state.Count++;
-
-                                        metadataSb.Clear();
-                                        break;
-                                    }
+                                    metadataSb.Clear();
                                 }
                             }
                         }

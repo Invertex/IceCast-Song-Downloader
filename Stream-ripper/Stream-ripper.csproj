@@ -3,14 +3,15 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>StreamRipper</RootNamespace>
     <AssemblyName>StreamRipper</AssemblyName>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Strem ripper with async event system</Description>
-    <RepositoryUrl>https://github.com/amir734jj/Stream-ripper</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/amir734jj/Stream-ripper</PackageProjectUrl>
-    <AssemblyVersion>2.1.9</AssemblyVersion>
-    <PackageReleaseNotes>Better class names overall</PackageReleaseNotes>
-    <FileVersion>2.1.9</FileVersion>
-    <Version>2.1.9</Version>
+    <RepositoryUrl>https://github.com/Invertex/Stream-ripper</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Invertex/Stream-ripper</PackageProjectUrl>
+    <AssemblyVersion>2.2.1</AssemblyVersion>
+    <FileVersion>2.1.1</FileVersion>
+    <Version>2.2.1</Version>
+    <SignAssembly>false</SignAssembly>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>none</DebugType>

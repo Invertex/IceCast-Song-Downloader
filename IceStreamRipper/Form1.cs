@@ -18,14 +18,16 @@ namespace Invertex
         private IStreamRipper stream;
 
         private List<string> filters = new List<string>(128);
-        private string regSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
-        private Regex rg;
+        private readonly string regSearch = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+        private readonly Regex rg;
 
         private int reconnectCount = 0;
         private bool successfullyConnected = false;
         private bool connected = false;
 
         private bool saveCurrentlyPlaying = false;
+        private string currentSong = "";
+
         private bool SaveCurrentlyPlaying
         {
             get => saveCurrentlyPlaying;
@@ -132,6 +134,11 @@ namespace Invertex
             {
                 filterWordsInput.Text = "";
                 SetSaveSongButtonState(true);
+                return;
+            }
+            else if(SongMatchesFilter(currentSong))
+            {
+                SetSaveSongButtonState(true);
             }
             else if (!saveCurrentlyPlaying)
             {
@@ -153,7 +160,6 @@ namespace Invertex
 #endregion
 
 #region StreamingEvents
-
         private void MetadataChanged(object sender, StreamRipper.Models.Events.MetadataChangedEventArg arg)
         {
             if (!HasFilters) { SetSaveSongButtonState(true); }
@@ -167,6 +173,8 @@ namespace Invertex
             {
                 successfullyConnected = true;
                 reconnectCount = 0;
+
+                currentSong = arg.SongMetadata.ToString();
 
                 if (SongMatchesFilter(arg.SongMetadata))
                 {
@@ -247,7 +255,7 @@ namespace Invertex
         }
         #endregion
 
-        #region UTILITY FUNCTIONS
+#region UTILITY FUNCTIONS
         private bool SavePathValid()
         {
             bool pathValid = Directory.Exists(saveLocationInput.Text);
@@ -261,16 +269,23 @@ namespace Invertex
 
         private bool SongMatchesFilter(SongMetadata metadata)
         {
+            if(metadata != null) { return SongMatchesFilter(metadata.ToString()); }
+            return false;
+        }
+
+        private bool SongMatchesFilter(string song)
+        {
             if (filters != null && filters.Count > 0)
             {
                 foreach (var filter in filters)
                 {
-                    if (metadata.ToString().Contains(filter, StringComparison.OrdinalIgnoreCase))
+                    if (song.Contains(filter, StringComparison.InvariantCultureIgnoreCase))
                     {
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
