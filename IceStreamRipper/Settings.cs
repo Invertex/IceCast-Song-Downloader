@@ -8,6 +8,7 @@
     //  The SettingsSaving event is raised before the setting values are saved.
     public sealed partial class Settings {
         
+        /// Construct settings class
         public Settings() {
             // // To add event handlers for saving and changing settings, uncomment the lines below:
             //

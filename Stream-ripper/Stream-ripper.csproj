@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>StreamRipper</RootNamespace>
     <AssemblyName>StreamRipper</AssemblyName>
-	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Strem ripper with async event system</Description>
     <RepositoryUrl>https://github.com/Invertex/Stream-ripper</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Invertex/Stream-ripper</PackageProjectUrl>
     <AssemblyVersion>2.2.1</AssemblyVersion>
     <FileVersion>2.1.1</FileVersion>
     <Version>2.2.1</Version>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../IceStreamRipper.snk</AssemblyOriginatorKeyFile>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -18,7 +18,7 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.32" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.32" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.33801.447
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34302.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stream-ripper", "Stream-ripper\Stream-ripper.csproj", "{93568285-B67B-407B-9E50-9EE8C1B6C36D}"
 EndProject
@@ -10,20 +10,48 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IceStreamRipper", "IceStrea
 		{93568285-B67B-407B-9E50-9EE8C1B6C36D} = {93568285-B67B-407B-9E50-9EE8C1B6C36D}
 	EndProjectSection
 EndProject
+Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "IceStreamRippere", "Build\Publish\IceStreamRippere.exe", "{4AE13A00-A20F-4E15-89BD-23057C8434FB}"
+	ProjectSection(DebuggerProjectSystem) = preProject
+		PortSupplier = 00000000-0000-0000-0000-000000000000
+		Executable = E:\Work\Github\Misc\Stream-ripper\Build\Publish\IceStreamRippere.exe
+		RemoteMachine = BOB
+		StartingDirectory = E:\Work\Github\Misc\Stream-ripper\Build\Publish
+		Environment = Default
+		LaunchingEngine = 00000000-0000-0000-0000-000000000000
+		UseLegacyDebugEngines = No
+		LaunchSQLEngine = No
+		AttachLaunchAction = No
+		IORedirection = Auto
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Debug|x64.Build.0 = Debug|Any CPU
 		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Release|x64.ActiveCfg = Release|Any CPU
+		{93568285-B67B-407B-9E50-9EE8C1B6C36D}.Release|x64.Build.0 = Release|Any CPU
 		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Debug|x64.ActiveCfg = Debug|x64
+		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Debug|x64.Build.0 = Debug|x64
 		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Release|x64.ActiveCfg = Release|x64
+		{9F455092-0B10-4513-BA2F-ACB535D6A0D8}.Release|x64.Build.0 = Release|x64
+		{4AE13A00-A20F-4E15-89BD-23057C8434FB}.Debug|Any CPU.ActiveCfg = Release|x64
+		{4AE13A00-A20F-4E15-89BD-23057C8434FB}.Debug|x64.ActiveCfg = Release|x64
+		{4AE13A00-A20F-4E15-89BD-23057C8434FB}.Release|Any CPU.ActiveCfg = Release|x64
+		{4AE13A00-A20F-4E15-89BD-23057C8434FB}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

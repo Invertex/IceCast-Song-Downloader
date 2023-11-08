@@ -11,18 +11,23 @@
 namespace Invertex.Properties {
     
     
+    /// <summary>
+    /// Settings manager
+    /// </summary>
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
     public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
         
+        /// Default settings
         public static Settings Default {
             get {
                 return defaultInstance;
             }
         }
         
+        /// The last saved path.
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
@@ -34,7 +39,8 @@ namespace Invertex.Properties {
                 this["LastPath"] = value;
             }
         }
-        
+
+        /// The last stream URL
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
@@ -46,7 +52,8 @@ namespace Invertex.Properties {
                 this["LastStream"] = value;
             }
         }
-        
+
+        /// Max times to reconnect
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("10")]
@@ -58,7 +65,8 @@ namespace Invertex.Properties {
                 this["ReconnectMax"] = value;
             }
         }
-        
+
+        /// Last used filters
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
