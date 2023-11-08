@@ -13,6 +13,9 @@ using Invertex.Properties;
 
 namespace Invertex
 {
+    /// <summary>
+    /// Main Form for program
+    /// </summary>
     public partial class IceStreamForm : Form
     {
         private IStreamRipper stream;
@@ -40,6 +43,7 @@ namespace Invertex
 
         private bool HasFilters { get => (filters != null && filters.Count > 0); }
 
+        /// Create new program form
         public IceStreamForm()
         {
             rg = new Regex(string.Format("[{0}]", Regex.Escape(regSearch)));

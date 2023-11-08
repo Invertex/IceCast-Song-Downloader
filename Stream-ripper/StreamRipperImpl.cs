@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -91,25 +93,32 @@ namespace StreamRipper
         {
             try
             {
-                var request = (HttpWebRequest) WebRequest.Create(state.Url);
-                request.Headers.Add("icy-metadata", "1");
-                request.ReadWriteTimeout = 10 * 1000;
-                request.Timeout = 10 * 1000;
-
-                using (var response = (HttpWebResponse) request.GetResponse())
+                HttpClient client = new()
                 {
+                    BaseAddress = new Uri(state.Url),
+                    Timeout = TimeSpan.FromSeconds(8)
+                };
+                client.DefaultRequestHeaders.Add("icy-metadata", "1");
+
+                var streamRequest = client.GetAsync("", HttpCompletionOption.ResponseHeadersRead, token);
+                streamRequest.Wait(token);
+                
+                using (var response = streamRequest.Result)
+                {
+                    response.EnsureSuccessStatusCode();
                     // Trigger on stream started
                     state.EventHandlers.StreamStartedEventHandlers.Invoke(state, new StreamStartedEventArg());
 
                     // Get the position of metadata
                     var metaInt = 0;
+                    var icyHead = response.Headers.GetValues(name: "icy-metaint").First();
 
-                    if (!string.IsNullOrEmpty(response.GetResponseHeader("icy-metaint")))
+                    if (!string.IsNullOrEmpty(icyHead))
                     {
-                        metaInt = Convert.ToInt32(response.GetResponseHeader("icy-metaint"));
+                        metaInt = Convert.ToInt32(icyHead);
                     }
 
-                    using (var socketStream = response.GetResponseStream())
+                    using (var socketStream = response.Content.ReadAsStream(token))
                     {
                         try
                         {

@@ -2,35 +2,51 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net7.0-windows7.0</TargetFramework>
         <UseWindowsForms>True</UseWindowsForms>
         <StartupObject>Invertex.Program</StartupObject>
         <ApplicationIcon>ice_icon.ico</ApplicationIcon>
         <RootNamespace>Invertex</RootNamespace>
         <Authors>Invertex</Authors>
         <Product />
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Description>Rips IceStream to individual songs</Description>
         <PackageIcon>ice_icon.png</PackageIcon>
         <PackageIconUrl />
-		<PublishTrimmed>true</PublishTrimmed>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<PublishReadyToRun>true</PublishReadyToRun>
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>IceStreamRipper.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>../IceStreamRipper.snk</AssemblyOriginatorKeyFile>
         <PackageProjectUrl>https://github.com/Invertex/Stream-ripper</PackageProjectUrl>
         <Version>1.0.2</Version>
         <Platforms>AnyCPU;x64</Platforms>
+        <Title>IceCast Stream Song Ripper</Title>
     </PropertyGroup>
-
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
       <DebugType>none</DebugType>
       <DebugSymbols>false</DebugSymbols>
     </PropertyGroup>
-
-    <ItemGroup>
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.32" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.32" />
+	<PropertyGroup>
+		<AssemblyName>$(MSBuildProjectName)App</AssemblyName>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+	  <DebugType>embedded</DebugType>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+	  <DebugType>none</DebugType>
+	</PropertyGroup>
+	<ItemGroup>
+		<GlobalPackageReference Include="ReferenceTrimmer" Version="{LatestVersion}" />
+	</ItemGroup>
+	<ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
     </ItemGroup>
-
+	
     <ItemGroup>
       <None Include="..\ice_icon.png">
         <Pack>True</Pack>

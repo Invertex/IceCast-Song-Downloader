@@ -1,6 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System;
-
+/// <summary>
+/// Flash the window to alert user
+/// </summary>
 public static class FlashWindow
 {
     [DllImport("user32.dll")]
@@ -90,7 +92,7 @@ public static class FlashWindow
         }
         return false;
     }
-
+    /// Flash both Tray and Window
     public static bool TrayAndWindow(System.Windows.Forms.Form form)
     {
         if (Win2000OrLater)
