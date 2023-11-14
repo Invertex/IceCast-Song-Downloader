@@ -3,6 +3,7 @@ using System.Windows.Forms;
 
 namespace Invertex
 {
+	//Do thing
     class Program
     {
         [STAThread]
