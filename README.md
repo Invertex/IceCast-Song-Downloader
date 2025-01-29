@@ -1,9 +1,11 @@
 # Stream-ripper
 
-IceCast Stream Ripper utility, allows you to selectively rip songs from an IceCast stream!
+IceCast Stream Ripper GUI utility, allows you to rip songs from an IceCast stream!
 
-Basically, extract mp3 with metadata from an IceCast stream URL. See this NuGet library [in action](https://stream-subscription-ui.herokuapp.com/#/about)
+Basically, it extracts MP3 with metadata from an IceCast stream URL. 
 
-[![NuGet Status](https://img.shields.io/nuget/v/StreamRipper.svg)](https://www.nuget.org/packages/StreamRipper/)
+You can let it rip every song or define filters if you're only interested in certain Artists or songs.
+
+You can let it run and it will process the stream in the background without having to listen to it, when it finds a match for your filter it will save that song.
 
 ![Preview of the application](https://i.imgur.com/nQEVSyZ.png)
